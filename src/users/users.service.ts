@@ -1,13 +1,15 @@
-import { Body, Inject } from "@nestjs/common";
+import { Body, HttpException, Inject } from "@nestjs/common";
 import { Repository } from "typeorm";
 import { createHmac } from 'crypto';
 import { SignInUserDto } from "./dto/users.dto";
 import { User } from "./user.entity";
+import { JwtService } from '@nestjs/jwt';
 
 export class UsersService {
   constructor(
     @Inject('USER_REPOSITORY')
     private userRepository: Repository<User>,
+		private readonly jwtService: JwtService,
   ) {}
 
   async createUser(email: string, password: string) {
@@ -18,16 +20,27 @@ export class UsersService {
       hashPassword
     });
     await this.userRepository.save(user);
+		return user;
   }
 
   async getToken(userEmail: string, userPassword: string) {
     const secret = 'abcdefg';
-    return this.userRepository.find({
+    const user = await this.userRepository.findOne({
       where: {
         email: userEmail,
         hashPassword: createHmac('sha256', secret).update(userPassword).digest('hex')
       }
-    })
+    });
+		if (!user) {
+			throw new HttpException('User not found!', 401);
+		}
+		const payload = {
+			email: user.email,
+			id: user.id
+		};
+		return {
+			access_token: this.jwtService.sign(payload),
+		};
   }
 
   async findAll() {
@@ -37,4 +50,9 @@ export class UsersService {
   async deleteUser(id: string) {
     return this.userRepository.delete(id);
   }
+
+	async getUserByEmail(email: string): Promise<User | undefined> {
+		const user = await this.userRepository.findOne({where: {email}});
+		return user;
+	}
 }
