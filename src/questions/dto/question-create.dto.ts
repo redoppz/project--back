@@ -4,10 +4,10 @@ import { ApiProperty } from '@nestjs/swagger';
 export class QuestionCreateDto {
 
 	@IsString()
-	@ApiProperty()
+	@ApiProperty({ example: 'question text', description: 'question desc' })
 	text: string;
 
 	@IsString()
-	@ApiProperty()
+	@ApiProperty({ example: 'answer text', description: 'answer desc ' })
 	answer: string;
 }

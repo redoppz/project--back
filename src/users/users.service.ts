@@ -1,36 +1,35 @@
-import { Body, HttpException, Inject } from "@nestjs/common";
+import { HttpException, Inject } from "@nestjs/common";
 import { Repository } from "typeorm";
 import { createHmac } from 'crypto';
-import { SignInUserDto } from "./dto/users.dto";
 import { User } from "./user.entity";
 import { JwtService } from '@nestjs/jwt';
 
 export class UsersService {
-  constructor(
-    @Inject('USER_REPOSITORY')
-    private userRepository: Repository<User>,
+	constructor(
+		@Inject('USER_REPOSITORY')
+		private userRepository: Repository<User>,
 		private readonly jwtService: JwtService,
-  ) {}
+	) { }
 
-  async createUser(email: string, password: string) {
-    const secret = 'abcdefg';
-    const hashPassword = createHmac('sha256', secret).update(password).digest('hex');
-    let user = this.userRepository.create({
-      email,
-      hashPassword
-    });
-    await this.userRepository.save(user);
+	async createUser(email: string, password: string) {
+		const secret = 'abcdefg';
+		const hashPassword = createHmac('sha256', secret).update(password).digest('hex');
+		let user = this.userRepository.create({
+			email,
+			hashPassword
+		});
+		await this.userRepository.save(user);
 		return user;
-  }
+	}
 
-  async getToken(userEmail: string, userPassword: string) {
-    const secret = 'abcdefg';
-    const user = await this.userRepository.findOne({
-      where: {
-        email: userEmail,
-        hashPassword: createHmac('sha256', secret).update(userPassword).digest('hex')
-      }
-    });
+	async getToken(userEmail: string, userPassword: string) {
+		const secret = 'abcdefg';
+		const user = await this.userRepository.findOne({
+			where: {
+				email: userEmail,
+				hashPassword: createHmac('sha256', secret).update(userPassword).digest('hex')
+			}
+		});
 		if (!user) {
 			throw new HttpException('User not found!', 401);
 		}
@@ -41,18 +40,18 @@ export class UsersService {
 		return {
 			access_token: this.jwtService.sign(payload),
 		};
-  }
+	}
 
-  async findAll() {
-    return this.userRepository.find();
-  }
+	async findAll() {
+		return this.userRepository.find();
+	}
 
-  async deleteUser(id: string) {
-    return this.userRepository.delete(id);
-  }
+	async deleteUser(id: string) {
+		return this.userRepository.delete(id);
+	}
 
 	async getUserByEmail(email: string): Promise<User | undefined> {
-		const user = await this.userRepository.findOne({where: {email}});
+		const user = await this.userRepository.findOne({ where: { email } });
 		return user;
 	}
 }

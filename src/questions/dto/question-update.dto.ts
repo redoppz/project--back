@@ -4,11 +4,11 @@ export class QuestionUpdateDto {
 
 	@IsOptional()
 	@IsString()
-	@ApiProperty()
+	@ApiProperty({ example: 'question text', description: 'question desc' })
 	text?: string;
 
 	@IsOptional()
 	@IsString()
-	@ApiProperty()
+	@ApiProperty({ example: 'answer text', description: 'answer desc ' })
 	answer?: string;
 }
