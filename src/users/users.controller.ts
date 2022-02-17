@@ -16,7 +16,7 @@ export class UsersController {
 	@ApiResponse({ status: 201, type: User })
 	@Post('/signUp')
 	async signUp(@Body() data: SignUpUserDto) {
-		await this.usersService.createUser(data.email, data.password);
+		return await this.usersService.createUser(data.email, data.password);
 	}
 
 	@ApiOperation({ summary: 'Get all users' })

@@ -1,5 +1,5 @@
 import { HttpException, Inject } from "@nestjs/common";
-import { Repository } from "typeorm";
+import { QueryFailedError, Repository } from "typeorm";
 import { createHmac } from 'crypto';
 import { User } from "./user.entity";
 import { JwtService } from '@nestjs/jwt';
@@ -18,7 +18,14 @@ export class UsersService {
 			email,
 			hashPassword
 		});
-		await this.userRepository.save(user);
+		try {
+			await this.userRepository.save(user);
+		} catch (e) {
+			if (e instanceof QueryFailedError && e?.driverError?.code == '23505') {
+				throw new HttpException('User is already exists.', 400);
+			}
+			throw e;
+		};
 		return user;
 	}
 
