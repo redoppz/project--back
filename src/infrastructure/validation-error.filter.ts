@@ -8,8 +8,8 @@ import { ValidationError } from 'class-validator';
 import { Request, Response } from 'express';
 import { logger } from './logger';
 
-@Catch(HttpException)
-export class HttpExceptionFilter implements ExceptionFilter {
+@Catch(ValidationError)
+export class ValidationErrorFilter implements ExceptionFilter {
   catch(exception: HttpException, host: ArgumentsHost) {
     const ctx = host.switchToHttp();
     const response = ctx.getResponse<Response>();
@@ -21,8 +21,9 @@ export class HttpExceptionFilter implements ExceptionFilter {
         error: exception,
         status: status,
       },
-      'HttpException',
+      'ValidationException',
     );
+    console.log('ValidationError');
     response.status(status).json({
       statusCode: status,
       timestamp: new Date().toISOString(),
