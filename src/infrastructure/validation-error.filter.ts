@@ -23,7 +23,6 @@ export class ValidationErrorFilter implements ExceptionFilter {
       },
       'ValidationException',
     );
-    console.log('ValidationError');
     response.status(status).json({
       statusCode: status,
       timestamp: new Date().toISOString(),

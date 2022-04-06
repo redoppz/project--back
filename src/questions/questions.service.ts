@@ -6,35 +6,34 @@ import { Question } from './questions.entity';
 
 @Injectable()
 export class QuestionsService {
+  constructor(
+    @Inject('QUESTIONS_REPOSITORY')
+    private questionRepository: Repository<Question>,
+  ) {}
 
-	constructor(
-		@Inject('QUESTIONS_REPOSITORY')
-		private questionRepository: Repository<Question>
-	) {}
+  async listQuestions() {
+    return this.questionRepository.find();
+  }
 
-	async listQuestions() {
-		return this.questionRepository.find();
-	}
+  async getQuestion(id: string) {
+    return this.questionRepository.findOne(id);
+  }
 
-	async getQuestion(id: string) {
-		return this.questionRepository.findOne(id);
-	}
+  async createQuestion(questionCreateDto: QuestionCreateDto) {
+    const question = this.questionRepository.create({
+      text: questionCreateDto.text,
+      answer: questionCreateDto.answer,
+    });
+    return this.questionRepository.save(question);
+  }
 
-	async createQuestion(questionCreateDto: QuestionCreateDto) {
-		const question = this.questionRepository.create({
-			text: questionCreateDto.text,
-			answer: questionCreateDto.answer
-		});
-		return this.questionRepository.save(question);
-	}
+  async deleteQuestion(id: string) {
+    return this.questionRepository.delete(id);
+  }
 
-	async deleteQuestion(id: string) {
-		return this.questionRepository.delete(id);
-	}
-
-	async updateQuestion(id: string, questionUpdateDto: QuestionUpdateDto) {
-		const question = await this.questionRepository.findOne(id);
-		Object.assign(question, questionUpdateDto);
-		return this.questionRepository.save(question);
-	}
+  async updateQuestion(id: string, questionUpdateDto: QuestionUpdateDto) {
+    const question = await this.questionRepository.findOne(id);
+    Object.assign(question, questionUpdateDto);
+    return this.questionRepository.save(question);
+  }
 }
