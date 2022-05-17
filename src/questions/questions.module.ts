@@ -6,15 +6,16 @@ import { Question } from './questions.entity';
 import { QuestionsService } from './questions.service';
 
 @Module({
-	imports: [DatabaseModule],
+  imports: [DatabaseModule],
   controllers: [QuestionsController],
   providers: [
-		QuestionsService,
-		{
+    QuestionsService,
+    {
       provide: 'QUESTIONS_REPOSITORY',
-      useFactory: (connection: Connection) => connection.getRepository(Question),
+      useFactory: (connection: Connection) =>
+        connection.getRepository(Question),
       inject: ['DATABASE_CONNECTION'],
     },
-	]
+  ],
 })
 export class QuestionsModule {}

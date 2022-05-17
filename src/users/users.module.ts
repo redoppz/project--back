@@ -9,25 +9,25 @@ import { UsersController } from './users.controller';
 import { UsersService } from './users.service';
 
 @Module({
-	imports: [
-		DatabaseModule,
-		JwtModule.register({
-			secret: jwtConstants.secret,
-			signOptions: {
-				expiresIn: '1h',
-			}
-		})
-	],
-	controllers: [UsersController],
-	providers: [
-		{
-			provide: 'USER_REPOSITORY',
-			useFactory: (connection: Connection) => connection.getRepository(User),
-			inject: ['DATABASE_CONNECTION'],
-		},
-		UsersService,
-		AuthService
-	],
-	exports: [UsersService]
+  imports: [
+    DatabaseModule,
+    JwtModule.register({
+      secret: jwtConstants.secret,
+      signOptions: {
+        expiresIn: '1h',
+      },
+    }),
+  ],
+  controllers: [UsersController],
+  providers: [
+    {
+      provide: 'USER_REPOSITORY',
+      useFactory: (connection: Connection) => connection.getRepository(User),
+      inject: ['DATABASE_CONNECTION'],
+    },
+    UsersService,
+    AuthService,
+  ],
+  exports: [UsersService],
 })
-export class UsersModule { }
+export class UsersModule {}

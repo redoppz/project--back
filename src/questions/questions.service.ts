@@ -1,7 +1,6 @@
 import { Inject, Injectable } from '@nestjs/common';
-import { Repository } from 'typeorm';
-import { QuestionCreateDto } from './dto/question-create.dto';
-import { QuestionUpdateDto } from './dto/question-update.dto';
+import { Like, Repository } from 'typeorm';
+import { QuestionCreateDto, QuestionGetDto, QuestionUpdateDto } from './dto';
 import { Question } from './questions.entity';
 
 @Injectable()
@@ -11,29 +10,36 @@ export class QuestionsService {
     private questionRepository: Repository<Question>,
   ) {}
 
-  async listQuestions() {
-    return this.questionRepository.find();
+  async listQuestions(questionGetDto: QuestionGetDto) {
+    console.log(questionGetDto);
+    // return await this.questionRepository.find(questionGetDto);
+    return await this.questionRepository.find({
+      where: {
+        tags: ['sql'],
+      },
+    });
   }
 
   async getQuestion(id: string) {
-    return this.questionRepository.findOne(id);
+    return await this.questionRepository.findOne(id);
   }
 
   async createQuestion(questionCreateDto: QuestionCreateDto) {
-    const question = this.questionRepository.create({
+    const question = await this.questionRepository.create({
       text: questionCreateDto.text,
       answer: questionCreateDto.answer,
+      tags: questionCreateDto.tags,
     });
-    return this.questionRepository.save(question);
+    return await this.questionRepository.save(question);
   }
 
   async deleteQuestion(id: string) {
-    return this.questionRepository.delete(id);
+    return await this.questionRepository.delete(id);
   }
 
   async updateQuestion(id: string, questionUpdateDto: QuestionUpdateDto) {
     const question = await this.questionRepository.findOne(id);
     Object.assign(question, questionUpdateDto);
-    return this.questionRepository.save(question);
+    return await this.questionRepository.save(question);
   }
 }

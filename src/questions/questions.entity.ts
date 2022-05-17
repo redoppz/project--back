@@ -1,25 +1,30 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { Column, CreateDateColumn, Entity, PrimaryGeneratedColumn, UpdateDateColumn } from 'typeorm';
+import { Transform } from 'class-transformer';
+import {
+  Column,
+  CreateDateColumn,
+  Entity,
+  PrimaryGeneratedColumn,
+  UpdateDateColumn,
+} from 'typeorm';
 
 @Entity()
 export class Question {
-	@PrimaryGeneratedColumn()
-	@ApiProperty({ example: 1, description: 'question unique id' })
-	id: string;
+  @PrimaryGeneratedColumn()
+  id: string;
 
-	@Column({ type: 'text' })
-	@ApiProperty({ example: 'text', description: 'question text' })
-	text: string;
+  @Column({ type: 'text' })
+  text: string;
 
-	@Column({ type: 'text' })
-	@ApiProperty({ example: 'answer', description: 'question answer' })
-	answer: string;
+  @Column({ type: 'text' })
+  answer: string;
 
-	@CreateDateColumn()
-	@ApiProperty({ example: '2022-02-10T10:26:43.190Z', description: 'Question create datetime' })
-	createdAt: Date;
+  @Column('text', { array: true })
+  tags: string[];
 
-	@UpdateDateColumn()
-	@ApiProperty({ example: '2022-02-10T10:26:43.190Z', description: 'Question update datetime' })
-	updatedAt: Date;
+  @CreateDateColumn()
+  createdAt: Date;
+
+  @UpdateDateColumn()
+  updatedAt: Date;
 }
