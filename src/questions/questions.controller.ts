@@ -7,6 +7,8 @@ import {
   Post,
   Put,
   Query,
+  UsePipes,
+  ValidationPipe,
 } from '@nestjs/common';
 import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { QuestionCreateDto, QuestionGetDto, QuestionUpdateDto } from './dto';
@@ -21,8 +23,8 @@ export class QuestionsController {
   @ApiOperation({ summary: 'Get all questions' })
   @ApiResponse({ status: 200, type: [Question] })
   @Get()
+  // @UsePipes(new ValidationPipe({ transform: true }))
   listQuestions(@Query() questionGetDto: QuestionGetDto) {
-    console.log(questionGetDto);
     return this.questionsService.listQuestions(questionGetDto);
   }
 
@@ -43,8 +45,8 @@ export class QuestionsController {
   @ApiOperation({ summary: 'Delete a question by id' })
   @ApiResponse({ status: 204, type: String })
   @Delete(':id')
-  async deleteQuestion(@Param('id') id: string) {
-    await this.questionsService.deleteQuestion(id);
+  deleteQuestion(@Param('id') id: string) {
+    return this.questionsService.deleteQuestion(id);
   }
 
   @ApiOperation({ summary: 'Update a question by id' })

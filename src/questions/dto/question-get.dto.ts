@@ -18,9 +18,8 @@ export class QuestionGetDto {
   @Transform((params) => {
     const { value } = params;
     if (Array.isArray(value)) {
-      return value.join(',');
+      return value.join(', ');
     }
-    console.log('value', value);
     return value;
   })
   @IsOptional()

@@ -10,9 +10,11 @@ async function bootstrap() {
   const app = await NestFactory.create(AppModule);
   app.setGlobalPrefix('api');
 
-  app.useGlobalFilters(new InternalExceptionFilter());
-  app.useGlobalFilters(new ValidationErrorFilter());
-  app.useGlobalFilters(new HttpExceptionFilter());
+  app.useGlobalFilters(
+    new InternalExceptionFilter(),
+    new ValidationErrorFilter(),
+    new HttpExceptionFilter(),
+  );
   app.useGlobalPipes(new ValidationPipe());
   const config = new DocumentBuilder()
     .setTitle('Nestjs project - mentoring')
@@ -23,7 +25,6 @@ async function bootstrap() {
   const document = SwaggerModule.createDocument(app, config);
   SwaggerModule.setup('api/doc', app, document);
 
-  app.useGlobalPipes(new ValidationPipe());
   await app.listen(3000);
 }
 bootstrap();

@@ -1,9 +1,10 @@
-import { ApiProperty } from '@nestjs/swagger';
-import { Transform } from 'class-transformer';
+import { Tag } from 'src/tags/tags.entity';
 import {
   Column,
   CreateDateColumn,
   Entity,
+  JoinTable,
+  ManyToMany,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
@@ -19,8 +20,15 @@ export class Question {
   @Column({ type: 'text' })
   answer: string;
 
-  @Column('text', { array: true })
-  tags: string[];
+  // @ManyToMany((type) => Tag, (tag) => tag.questions, {
+  //   cascade: true,
+  // })
+  @ManyToMany((type) => Tag, (tag: Tag) => tag.questions)
+  @JoinTable()
+  // @Column({
+  //   unique: true,
+  // })
+  tags: Tag[];
 
   @CreateDateColumn()
   createdAt: Date;
