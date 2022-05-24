@@ -23,7 +23,6 @@ export class QuestionsController {
   @ApiOperation({ summary: 'Get all questions' })
   @ApiResponse({ status: 200, type: [Question] })
   @Get()
-  // @UsePipes(new ValidationPipe({ transform: true }))
   listQuestions(@Query() questionGetDto: QuestionGetDto) {
     return this.questionsService.listQuestions(questionGetDto);
   }

@@ -7,9 +7,9 @@ import { Tag } from './tags.entity';
 @Injectable()
 export class TagsService {
   constructor(
-    @Inject('QUESTIONS_REPOSITORY')
-    private questionRepository: Repository<Question>,
     @Inject('TAGS_REPOSITORY') private tagsRepository: Repository<Tag>,
+    @Inject('QUESTIONS_REPOSITORY')
+    private questionsRepository: Repository<Question>,
   ) {}
 
   public async getTags() {
@@ -25,7 +25,7 @@ export class TagsService {
     if (tag) {
       return tag;
     }
-    throw new NotFoundException('Tag with this is not found!');
+    throw new NotFoundException('Tag with this id is not found!');
   }
 
   public async createTag(createTagDto: TagsCreateDto) {
@@ -49,14 +49,22 @@ export class TagsService {
   // Доделать
   public async deleteTag(id: number) {
     try {
-      const tags = await this.getTagById(id);
-      const questionsWithTags = await this.questionRepository.find({
+      const deleteTagValue = await this.getTagById(id);
+      const questionWithTags = await this.questionsRepository.find({
         relations: ['tags'],
-        where: {
-          tags: tags,
-        },
       });
-      // return await this.tagsRepository.save();
+      questionWithTags.map(async (question) => {
+        const val = question.tags.find(
+          (tag) => tag.text === deleteTagValue.text,
+        );
+        console.log('val', val);
+        if (val) {
+          const id = await this.questionsRepository.find({
+            relations: ['tags'],
+          });
+          // await this.questionsRepository.delete();
+        }
+      });
     } catch (e) {
       console.log(e);
     }

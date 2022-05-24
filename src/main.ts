@@ -1,10 +1,10 @@
+import { ValidationPipe } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
 import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 import { AppModule } from './app.module';
 import { HttpExceptionFilter } from './infrastructure/http-exception.filter';
 import { InternalExceptionFilter } from './infrastructure/internal-exception.filter';
 import { ValidationErrorFilter } from './infrastructure/validation-error.filter';
-import { ValidationPipe } from './infrastructure/validation.pipe';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
@@ -15,7 +15,7 @@ async function bootstrap() {
     new ValidationErrorFilter(),
     new HttpExceptionFilter(),
   );
-  app.useGlobalPipes(new ValidationPipe());
+  app.useGlobalPipes(new ValidationPipe({ transform: true }));
   const config = new DocumentBuilder()
     .setTitle('Nestjs project - mentoring')
     .setDescription('Demo back of mentoring project')

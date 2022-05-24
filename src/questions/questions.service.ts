@@ -1,6 +1,6 @@
 import { Inject, Injectable, NotFoundException } from '@nestjs/common';
 import { Tag } from 'src/tags/tags.entity';
-import { Repository, TableExclusion } from 'typeorm';
+import { Repository } from 'typeorm';
 import { QuestionCreateDto, QuestionGetDto, QuestionUpdateDto } from './dto';
 import { Question } from './questions.entity';
 
@@ -14,12 +14,31 @@ export class QuestionsService {
   ) {}
 
   async listQuestions(questionGetDto: QuestionGetDto) {
-    const questions = await this.questionRepository.find({
-      relations: ['tags'],
-      where: questionGetDto,
-    });
-    if (questions.length) {
-      return questions;
+    try {
+      const questions = await this.questionRepository
+        .createQueryBuilder('questions')
+        .leftJoinAndSelect('questions.tags', 'tag');
+      if (questionGetDto.text) {
+        questions.andWhere('questions.text = :text', {
+          text: questionGetDto.text,
+        });
+      }
+      if (questionGetDto.answer) {
+        questions.andWhere('questions.answer = :answer', {
+          answer: questionGetDto.answer,
+        });
+      }
+      if (questionGetDto.tags) {
+        questions.andWhere('questions.tags IN (:...tags)', {
+          tags: questionGetDto.tags,
+        });
+      }
+      return await questions.getMany();
+      // if (questions.length) {
+      //   return questions;
+      // }
+    } catch (error) {
+      console.log(error);
     }
     throw new NotFoundException('Questions with these query params not found!');
   }
@@ -34,24 +53,28 @@ export class QuestionsService {
     throw new NotFoundException('Question with this id not found!');
   }
 
-  // Костыль - необходимо отрефакторить
+  // Refactor!
   async createQuestion(questionCreateDto: QuestionCreateDto) {
-    const tags: Tag[] = await Promise.all(
+    const tagsCreated = await this.tagRepository.find(); // Нужно записать в кэш все теги
+
+    const tags = await Promise.all(
       questionCreateDto.tags.map(async (elem) => {
-        const tagsCreated = await this.tagRepository.find();
-        const valueOfTagsCreated = await tagsCreated.map((elem) => elem.text);
+        const valueOfTagsCreated = tagsCreated.find((el) => el.text === elem);
+
         let tag: Tag;
-        if (valueOfTagsCreated.includes(elem)) {
-          tag.text = elem;
+        if (valueOfTagsCreated) {
+          tag = valueOfTagsCreated;
         } else {
-          tag = new Tag(elem);
+          tag = new Tag();
+          tag.text = elem;
+          tag = await this.tagRepository.save(tag);
         }
         return tag;
       }),
     );
 
     try {
-      const question = await this.questionRepository.create({
+      const question = this.questionRepository.create({
         text: questionCreateDto.text,
         answer: questionCreateDto.answer,
         tags,
@@ -66,15 +89,41 @@ export class QuestionsService {
     return await this.questionRepository.delete(id);
   }
 
-  // Отрефакторить
+  // Refactor!
   async updateQuestion(id: string, questionUpdateDto: QuestionUpdateDto) {
-    await this.questionRepository.update(id, questionUpdateDto);
-    const updatedQuestion = this.questionRepository.findOne(id, {
+    const updatedQuestion = await this.questionRepository.findOne(id, {
       relations: ['tags'],
     });
-    if (updatedQuestion) {
-      return updatedQuestion;
+    if (questionUpdateDto.tags) {
+      const tagsUpdated = await this.tagRepository.find();
+      const tags = await Promise.all(
+        questionUpdateDto.tags.map(async (elem) => {
+          const tagContainInQuestion = tagsUpdated.find(
+            (el) => el.text === elem,
+          );
+          let tag: Tag;
+          if (tagContainInQuestion) {
+            tag = tagContainInQuestion;
+          } else {
+            tag = new Tag();
+            tag.text = elem;
+            tag = await this.tagRepository.save(tag);
+          }
+          return tag;
+        }),
+      );
+      updatedQuestion.tags = tags;
     }
-    throw new NotFoundException('Question with this id not found!');
+    if (questionUpdateDto.text) {
+      updatedQuestion.text = questionUpdateDto.text;
+    }
+    if (questionUpdateDto.answer) {
+      updatedQuestion.answer = questionUpdateDto.answer;
+    }
+    try {
+      return await this.questionRepository.save(updatedQuestion);
+    } catch (error) {
+      console.log(error);
+    }
   }
 }

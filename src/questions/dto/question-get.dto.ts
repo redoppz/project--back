@@ -5,10 +5,6 @@ import { IsOptional } from 'class-validator';
 export class QuestionGetDto {
   @ApiProperty({ required: false })
   @IsOptional()
-  public readonly id?: string;
-
-  @ApiProperty({ required: false })
-  @IsOptional()
   public readonly text?: string;
 
   @ApiProperty({ required: false })
@@ -18,7 +14,7 @@ export class QuestionGetDto {
   @Transform((params) => {
     const { value } = params;
     if (Array.isArray(value)) {
-      return value.join(', ');
+      return value.join(',');
     }
     return value;
   })

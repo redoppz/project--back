@@ -20,14 +20,8 @@ export class Question {
   @Column({ type: 'text' })
   answer: string;
 
-  // @ManyToMany((type) => Tag, (tag) => tag.questions, {
-  //   cascade: true,
-  // })
   @ManyToMany((type) => Tag, (tag: Tag) => tag.questions)
   @JoinTable()
-  // @Column({
-  //   unique: true,
-  // })
   tags: Tag[];
 
   @CreateDateColumn()

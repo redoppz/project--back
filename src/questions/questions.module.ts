@@ -8,7 +8,7 @@ import { Question } from './questions.entity';
 import { QuestionsService } from './questions.service';
 
 @Module({
-  imports: [DatabaseModule],
+  imports: [DatabaseModule, TagsModule],
   controllers: [QuestionsController],
   providers: [
     QuestionsService,

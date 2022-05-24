@@ -23,5 +23,6 @@ import { TagsService } from './tags.service';
       inject: ['DATABASE_CONNECTION'],
     },
   ],
+  exports: [TagsService],
 })
 export class TagsModule {}
